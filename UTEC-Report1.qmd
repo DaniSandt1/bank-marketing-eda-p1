@@ -62,12 +62,16 @@ cifras <- leer_tabla("tbl_cifras_clave.csv") |>
 # Valor puntual por nombre, formateado para intercalar en el texto.
 v <- function(k, dec = 2) format(round(cifras[[k]], dec), big.mark = ",", trim = TRUE)
 
-tabla_bonita <- function(d, cap, fs = 9) {
+# `ajustar = TRUE` anade scale_down, que encoge la tabla hasta el ancho del
+# texto. Necesario en la matriz de covarianzas: 10 columnas numericas de varias
+# cifras se salen del margen y LaTeX no las parte solo.
+tabla_bonita <- function(d, cap, fs = 9, ajustar = FALSE) {
+  opciones <- c("HOLD_position", "striped")
+  if (ajustar) opciones <- c(opciones, "scale_down")
   d |>
     kable(booktabs = TRUE, linesep = "", caption = cap,
           format.args = list(big.mark = ",")) |>
-    kable_styling(latex_options = c("HOLD_position", "striped"),
-                  font_size = fs) |>
+    kable_styling(latex_options = opciones, font_size = fs) |>
     row_spec(0, bold = TRUE, align = "c")
 }
 ```
@@ -516,10 +520,15 @@ relación inexistente.
 ```{r}
 #| label: tbl-covarianza
 #| tbl-cap: "Matriz de covarianzas de las variables numéricas."
+# Los nombres completos no caben como encabezado: se abrevian a 10 caracteres
+# y la tabla se escala al ancho del texto.
+abreviar <- function(x) substr(x, 1, 10)
 leer_tabla("tbl_covarianza.csv") |>
   rename(Variable = 1) |>
-  mutate(across(where(is.numeric), ~ round(.x, 1))) |>
-  tabla_bonita("Matriz de covarianzas.", fs = 6)
+  mutate(Variable = abreviar(Variable),
+         across(where(is.numeric), ~ round(.x, 1))) |>
+  rename_with(abreviar, -Variable) |>
+  tabla_bonita("Matriz de covarianzas.", fs = 6, ajustar = TRUE)
 ```
 
 La covarianza comparte el signo con la correlación pero **no es comparable entre
