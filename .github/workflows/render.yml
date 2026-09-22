@@ -118,7 +118,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: informe-pdf
-          path: UTEC-Report1.pdf
+          path: |
+            UTEC-Report1.pdf
+            UTEC-Report1.tex
           if-no-files-found: warn
 
       - name: Publicar la presentación en HTML

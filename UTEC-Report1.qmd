@@ -24,6 +24,7 @@ format:
     lof: true
     lot: true
     include-in-header: preamble.tex
+    keep-tex: true
 lang: es
 execute:
   echo: false
@@ -520,13 +521,22 @@ relación inexistente.
 ```{r}
 #| label: tbl-covarianza
 #| tbl-cap: "Matriz de covarianzas de las variables numéricas."
-# scale_down encoge la tabla hasta el ancho del texto. No se abrevian los
-# nombres: truncarlos a 10 caracteres colapsaria n_contactos_campana y
-# n_contactos_previos en la misma cadena, y rename_with() rechaza duplicados.
-leer_tabla("tbl_covarianza.csv") |>
+# Lo que fuerza el ancho de esta tabla son los encabezados, no las cifras:
+# 10 nombres como 'n_contactos_campana' no caben en el ancho de texto.
+# abbreviate() de R base los acorta GARANTIZANDO unicidad, que es justo lo que
+# fallaba al truncar a mano (n_contactos_campana y n_contactos_previos
+# colapsaban en la misma cadena y rename_with() abortaba).
+cov_df <- leer_tabla("tbl_covarianza.csv") |>
   rename(Variable = 1) |>
-  mutate(across(where(is.numeric), ~ round(.x, 1))) |>
-  tabla_bonita("Matriz de covarianzas.", fs = 6, ajustar = TRUE)
+  mutate(across(where(is.numeric), ~ round(.x, 1)))
+
+# La matriz es cuadrada: filas y columnas llevan las variables en el mismo
+# orden, asi que una unica tabla de abreviaturas sirve para ambas.
+abrev <- unname(abbreviate(cov_df$Variable, minlength = 9))
+cov_df$Variable <- abrev
+names(cov_df)[-1] <- abrev
+
+cov_df |> tabla_bonita("Matriz de covarianzas.", fs = 6, ajustar = TRUE)
 ```
 
 La covarianza comparte el signo con la correlación pero **no es comparable entre
