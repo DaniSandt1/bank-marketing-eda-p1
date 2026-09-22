@@ -119,7 +119,7 @@ Cada decisión quedó registrada en una bitácora durante la ejecución
 **El dataset no estaba limpio pese a declararse como tal.** `is.na()` devuelve
 cero en las 21 columnas, pero existen faltantes en seis variables codificados
 como el texto `"unknown"`, un centinela que distorsionaba una media en tres
-órdenes de magnitud, y una correlación de −0.588 que era puro artefacto de ese
+órdenes de magnitud, y una correlación de -0.588 que era puro artefacto de ese
 centinela.
 
 **Desbalance del 11.27%.** Un modelo que prediga "no" siempre acertaría el

@@ -37,6 +37,27 @@
 \providecommand{\RIC}{\mathrm{RIC}}          % rango intercuartílico
 \providecommand{\corr}[2]{r_{#1#2}}          % coeficiente de correlación
 
+% --- Símbolos Unicode fuera de Latin-1 ---------------------------------------
+% pdfLaTeX con inputenc solo conoce los caracteres de Latin-1. Un signo menos
+% tipográfico (U+2212), que es lo que insertan muchos editores al escribir
+% "-0.588", aborta la compilación con:
+%
+%     LaTeX Error: Unicode character - (U+2212) not set up for use with LaTeX.
+%
+% Las declaraciones siguientes lo traducen a su equivalente en LaTeX. Van aquí y
+% no antes porque `include-in-header` se inyecta después de inputenc (línea 465
+% de monashreport.tex frente a la 13 de inputenc), que es el orden que
+% \DeclareUnicodeCharacter exige.
+\DeclareUnicodeCharacter{2212}{-}                  % signo menos
+\DeclareUnicodeCharacter{2192}{$\rightarrow$}      % flecha derecha
+\DeclareUnicodeCharacter{2190}{$\leftarrow$}       % flecha izquierda
+\DeclareUnicodeCharacter{2193}{$\downarrow$}       % flecha abajo
+\DeclareUnicodeCharacter{2191}{$\uparrow$}         % flecha arriba
+\DeclareUnicodeCharacter{2264}{$\leq$}             % menor o igual
+\DeclareUnicodeCharacter{2265}{$\geq$}             % mayor o igual
+\DeclareUnicodeCharacter{2248}{$\approx$}          % aproximadamente
+\DeclareUnicodeCharacter{2260}{$\neq$}             % distinto de
+
 % --- Resaltado de cifras clave -----------------------------------------------
 % \cifra{11.27\%} destaca un valor numérico en el cuerpo del texto sin recurrir
 % a negrita, que ya se usa para los términos conceptuales.

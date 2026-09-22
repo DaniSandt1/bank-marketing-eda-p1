@@ -22,6 +22,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Permisos que necesita el job de publicación en GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   verificar:
     runs-on: ubuntu-latest
@@ -98,7 +104,10 @@ jobs:
       - name: Renderizar el informe a PDF
         run: quarto render UTEC-Report1.qmd
 
+      # `always()` para que un fallo en el informe no impida saber si la
+      # presentación también falla: un solo run informa de los dos.
       - name: Renderizar la presentación a HTML
+        if: always()
         run: quarto render UTEC-Presentation.qmd
 
       # ------------------------------------------------------------------
@@ -133,3 +142,119 @@ jobs:
             figs_R/
             tablas_R/
           if-no-files-found: warn
+
+      # ------------------------------------------------------------------
+      # SITIO PARA GITHUB PAGES
+      # Reune el informe y la presentacion en una carpeta _site/ con una
+      # portada que enlaza a ambos, para poder verlos desde el navegador
+      # sin descargar nada.
+      # ------------------------------------------------------------------
+      - name: Armar el sitio
+        run: |
+          mkdir -p _site
+          cp UTEC-Presentation.html _site/
+          cp -r UTEC-Presentation_files _site/ 2>/dev/null || true
+          cp UTEC-Report1.pdf _site/
+          cp -r figs _site/
+          cat > _site/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Bank Marketing P1</title>
+          <style>
+            :root {
+              color-scheme: light;
+              --bg: #fcfcfb; --card: #ffffff; --border: #e7e6e2;
+              --ink: #0b0b0b; --ink2: #52514e; --azul: #2a78d6; --naranja: #eb6834;
+            }
+            @media (prefers-color-scheme: dark) {
+              :root:not([data-theme="light"]) {
+                color-scheme: dark;
+                --bg: #1a1a19; --card: #232322; --border: #383835;
+                --ink: #ffffff; --ink2: #c3c2b7; --azul: #3987e5; --naranja: #d95926;
+              }
+            }
+            * { box-sizing: border-box; }
+            body {
+              margin: 0; background: var(--bg); color: var(--ink);
+              font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+              padding: 48px 16px;
+            }
+            .wrap { max-width: 760px; margin: 0 auto; }
+            h1 { font-size: 1.9rem; margin: 0 0 .3em; letter-spacing: -.02em; }
+            .sub { color: var(--ink2); margin: 0 0 2.4em; }
+            .card {
+              display: block; background: var(--card); border: 1px solid var(--border);
+              border-radius: 12px; padding: 22px 24px; margin-bottom: 16px;
+              text-decoration: none; color: inherit; transition: border-color .15s;
+            }
+            .card:hover { border-color: var(--azul); }
+            .card h2 { margin: 0 0 .3em; font-size: 1.15rem; color: var(--azul); }
+            .card p { margin: 0; color: var(--ink2); font-size: .94rem; }
+            .stats {
+              display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+              gap: 12px; margin: 2.4em 0;
+            }
+            .stat {
+              background: var(--card); border: 1px solid var(--border);
+              border-radius: 10px; padding: 16px;
+            }
+            .stat b { display: block; font-size: 1.45rem; color: var(--naranja); }
+            .stat span { font-size: .8rem; color: var(--ink2); }
+            footer { margin-top: 3em; color: var(--ink2); font-size: .85rem; }
+            a.plain { color: var(--azul); }
+          </style>
+          </head>
+          <body><div class="wrap">
+            <h1>Bank Marketing — Entrega P1</h1>
+            <p class="sub">Exploración y preprocesamiento · Introducción a Ciencia de Datos e IA</p>
+
+            <a class="card" href="UTEC-Presentation.html">
+              <h2>Presentación &rarr;</h2>
+              <p>20 diapositivas. Navega con las flechas; pulsa <b>S</b> para las notas y <b>F</b> para pantalla completa.</p>
+            </a>
+
+            <a class="card" href="UTEC-Report1.pdf">
+              <h2>Informe completo (PDF) &rarr;</h2>
+              <p>Contexto, limpieza justificada paso a paso, EDA univariado y multivariado, y conclusiones.</p>
+            </a>
+
+            <div class="stats">
+              <div class="stat"><b>41,188</b><span>registros</span></div>
+              <div class="stat"><b>21</b><span>variables</span></div>
+              <div class="stat"><b>11.27%</b><span>tasa de éxito</span></div>
+              <div class="stat"><b>13</b><span>figuras</span></div>
+            </div>
+
+            <footer>
+              Generado automáticamente desde
+              <a class="plain" href="https://github.com/DaniSandt1/bank-marketing-eda-p1">el repositorio</a>
+              en cada push. Dataset: UCI Machine Learning Repository.
+            </footer>
+          </div></body>
+          </html>
+          HTML
+          echo "Sitio armado:"; ls -la _site/
+
+      - name: Subir el sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  # ====================================================================
+  # PUBLICACION EN GITHUB PAGES
+  # Solo desde main: una rama de trabajo no debe pisar el sitio publicado.
+  # ====================================================================
+  publicar:
+    needs: verificar
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -274,9 +274,9 @@ Tratarlo como un número tiene consecuencias graves y verificables:
 
 - La media de `pdays` en el archivo crudo es **962.5 días**, un valor que no
   describe a ningún cliente real.
-- Genera una correlación espuria de **r = −0.588** con `previous`. Esa relación
+- Genera una correlación espuria de **r = -0.588** con `previous`. Esa relación
   es un artefacto del código centinela, no un fenómeno: desaparece al
-  recodificar (baja a −0.04), como se verifica en la @fig-corr-pearson.
+  recodificar (baja a -0.04), como se verifica en la @fig-corr-pearson.
 
 La solución aplicada descompone la variable en dos, que es lo que en realidad
 estaba mezclado:
@@ -502,8 +502,8 @@ recomendación es **conservar una sola como representante del bloque**
 de dimensionalidad.
 
 Conviene además registrar un resultado del preprocesamiento: la correlación
-`pdays` ~ `previous` de **−0.588** presente en los datos crudos **desaparece
-(−0.04)** una vez recodificado el centinela 999. Era un artefacto del código, no
+`pdays` ~ `previous` de **-0.588** presente en los datos crudos **desaparece
+(-0.04)** una vez recodificado el centinela 999. Era un artefacto del código, no
 una relación. Es la demostración más limpia de por qué el orden importa: un
 análisis de correlaciones ejecutado antes de limpiar habría reportado una
 relación inexistente.
@@ -524,7 +524,7 @@ pares**, porque conserva las unidades de las variables implicadas. La matriz lo
 ilustra con claridad: la covarianza entre `duracion` y `n_empleados` alcanza
 magnitudes de millares simplemente porque `n_empleados` se mide en miles de
 personas y `duracion` en segundos, no porque la relación sea intensa —su
-correlación es apenas −0.04.
+correlación es apenas -0.04.
 
 Por eso el análisis de intensidad se apoya en la correlación, que es
 adimensional y acotada en $[-1, 1]$. La covarianza se reporta porque es el
@@ -558,7 +558,7 @@ siguiente explica por qué este resultado, lejos de ser una buena noticia, es el
 problema metodológico central del dataset.
 
 El segundo bloque lo forman las macroeconómicas, todas con signo negativo
-(`n_empleados` −0.355, `euribor_3m` −0.308, `var_empleo` −0.298): **la
+(`n_empleados` -0.355, `euribor_3m` -0.308, `var_empleo` -0.298): **la
 suscripción aumenta cuando la economía se deteriora**. La lectura económica es
 coherente. En un entorno de tasas altas y empleo en expansión, el cliente
 encuentra alternativas más rentables que un depósito a plazo; cuando las tasas
@@ -710,13 +710,13 @@ Interpretación de cada panel:
    con más dispersión, lo que sugiere que el índice de precios aporta algo de
    información propia frente al bloque.
 
-4. **`edad` vs `duracion` (r = −0.001)** — Ausencia total de relación lineal: una
+4. **`edad` vs `duracion` (r = -0.001)** — Ausencia total de relación lineal: una
    nube sin estructura. Es un resultado útil, porque descarta que la duración de
    la llamada dependa de la edad del cliente. Se aprecia la mayor densidad de
    puntos naranjas en la zona superior, reflejo de la asociación entre duración
    y suscripción.
 
-5. **`n_contactos_campana` vs `duracion` (r = −0.072)** — Se observa un patrón en
+5. **`n_contactos_campana` vs `duracion` (r = -0.072)** — Se observa un patrón en
    forma de L: las llamadas largas se concentran en los primeros contactos, y a
    partir del quinto contacto la duración cae drásticamente. La interpretación
    es directa: **la insistencia agota la paciencia del cliente**. Es la
@@ -760,8 +760,8 @@ Ordenadas por valor esperado para el modelado:
 1. **`resultado_campana_previa` / `exito_previo`** — La señal más fuerte
    legítimamente utilizable (65.1% de conversión).
 2. **`mes` y `trimestre`** — Rango de variación del 6.4% al 50.6%.
-3. **Bloque macroeconómico (una representante)** — Correlaciones de −0.30 a
-   −0.36 con el objetivo.
+3. **Bloque macroeconómico (una representante)** — Correlaciones de -0.30 a
+   -0.36 con el objetivo.
 4. **`tipo_contacto`** — 14.7% frente a 5.2%.
 5. **`grupo_etario`** — Efecto en U que la edad continua no captura.
 6. **`ocupacion`** — Rango del 6.9% al 31.4%.

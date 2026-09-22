@@ -183,7 +183,7 @@ contactado antes"*. Afecta al **`r v("pct_pdays_999")`%** de los registros.
 **Si se deja como número:**
 
 - La media es de **962.5 días** — un valor que no describe a ningún cliente real
-- Genera una correlación falsa de **−0.588** con `previous`
+- Genera una correlación falsa de **-0.588** con `previous`
 :::
 
 ::: {.column width="50%"}
@@ -192,7 +192,7 @@ contactado antes"*. Afecta al **`r v("pct_pdays_999")`%** de los registros.
 - `contactado_antes` → 0 / 1
 - `dias_ultimo_contacto` → `NA` si no aplica
 
-La correlación falsa **baja a −0.04**: era un artefacto del código.
+La correlación falsa **baja a -0.04**: era un artefacto del código.
 :::
 :::
 
@@ -223,7 +223,7 @@ dejaría la categoría con cero o un caso.
 | Paso | Resultado |
 |:---|:---|
 | Renombrado | 21 columnas a `snake_case` |
-| Duplicados | −12 filas |
+| Duplicados | -12 filas |
 | Nulos encubiertos | 6 columnas → `desconocido` |
 | Centinela 999 | `pdays` → 2 variables |
 | Variable degenerada | `default` → `impago_desconocido` |
@@ -455,7 +455,7 @@ Las funciones estándar reportaban **cero faltantes**. En realidad había:
 - Valores ausentes en **6 variables**, disfrazados de categoría
 - Un **código centinela** que distorsionaba una media en tres órdenes de magnitud
 - Una variable con **3 observaciones** en una de sus categorías
-- Una correlación de **−0.588** que era puro artefacto
+- Una correlación de **-0.588** que era puro artefacto
 
 . . .
 
