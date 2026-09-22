@@ -520,14 +520,12 @@ relación inexistente.
 ```{r}
 #| label: tbl-covarianza
 #| tbl-cap: "Matriz de covarianzas de las variables numéricas."
-# Los nombres completos no caben como encabezado: se abrevian a 10 caracteres
-# y la tabla se escala al ancho del texto.
-abreviar <- function(x) substr(x, 1, 10)
+# scale_down encoge la tabla hasta el ancho del texto. No se abrevian los
+# nombres: truncarlos a 10 caracteres colapsaria n_contactos_campana y
+# n_contactos_previos en la misma cadena, y rename_with() rechaza duplicados.
 leer_tabla("tbl_covarianza.csv") |>
   rename(Variable = 1) |>
-  mutate(Variable = abreviar(Variable),
-         across(where(is.numeric), ~ round(.x, 1))) |>
-  rename_with(abreviar, -Variable) |>
+  mutate(across(where(is.numeric), ~ round(.x, 1))) |>
   tabla_bonita("Matriz de covarianzas.", fs = 6, ajustar = TRUE)
 ```
 
