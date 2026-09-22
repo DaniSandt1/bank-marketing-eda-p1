@@ -1,0 +1,486 @@
+---
+title: "Bank Marketing"
+subtitle: "Entrega P1 — Exploración y Preprocesamiento"
+author: "Grupo N.º — (completar integrantes)"
+institute: "Introducción a Ciencia de Datos e Inteligencia Artificial"
+date: today
+date-format: "D [de] MMMM [de] YYYY"
+lang: es
+format:
+  revealjs:
+    theme: default
+    slide-number: true
+    show-slide-number: all
+    transition: fade
+    incremental: false
+    width: 1280
+    height: 760
+    fig-align: center
+    code-line-numbers: false
+    preview-links: auto
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+
+leer_tabla <- function(x) readr::read_csv(file.path("tablas", x),
+                                          show_col_types = FALSE)
+cifras <- leer_tabla("tbl_cifras_clave.csv") |> tibble::deframe()
+v <- function(k, dec = 2) format(round(cifras[[k]], dec), big.mark = ",",
+                                trim = TRUE)
+```
+
+# 1. El dataset {background-color="#2a78d6"}
+
+## El problema
+
+::: {.columns}
+::: {.column width="55%"}
+Un banco portugués llamó por teléfono a sus clientes entre **2008 y 2010** para
+ofrecerles un **depósito a plazo fijo**.
+
+**La pregunta:** ¿a quién conviene llamar?
+
+Llamar cuesta dinero. Con una tasa de éxito del
+**`r v("tasa_global_pct")`%**, nueve de cada diez llamadas terminan en un "no".
+:::
+
+::: {.column width="45%"}
+| | |
+|:---|---:|
+| Registros | **`r v("filas_original", 0)`** |
+| Variables | **`r v("columnas_original", 0)`** |
+| Período | 2008–2010 |
+| Tasa de éxito | **`r v("tasa_global_pct")`%** |
+
+: {.striped tbl-colwidths="[60,40]"}
+:::
+:::
+
+::: {.callout-note appearance="simple"}
+Fuente: UCI Machine Learning Repository — *Bank Marketing* (Moro, Cortez y Rita, 2014).
+Se eligió la versión ampliada, que incluye 5 indicadores macroeconómicos.
+:::
+
+## Las 21 variables
+
+::: {.columns}
+::: {.column width="25%"}
+**Perfil del cliente**
+
+- edad
+- ocupación
+- estado civil
+- educación
+- préstamos
+:::
+
+::: {.column width="25%"}
+**Contacto actual**
+
+- canal
+- mes
+- día de la semana
+- duración
+:::
+
+::: {.column width="25%"}
+**Historial**
+
+- n.º de contactos
+- días desde el último
+- resultado previo
+:::
+
+::: {.column width="25%"}
+**Macroeconomía**
+
+- euríbor 3m
+- variación de empleo
+- índice de precios
+- confianza
+- n.º de empleados
+:::
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+**Objetivo:** `suscribio` — ¿el cliente contrató el depósito?
+:::
+
+# 2. Limpieza y decisiones {background-color="#2a78d6"}
+
+## El dataset decía estar limpio. No lo estaba.
+
+::: {.columns}
+::: {.column width="45%"}
+La documentación afirma **cero valores faltantes**.
+
+`is.na()` lo confirma: **cero**.
+
+. . .
+
+**Es falso.**
+
+Los faltantes están codificados como el texto `"unknown"`, que R y pandas leen
+como una categoría válida más.
+:::
+
+::: {.column width="55%"}
+![](figs/fig_nulos.png)
+:::
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Un faltante que no se declara es más peligroso que uno que sí: atraviesa en
+silencio todas las etapas posteriores.
+:::
+
+## Decisión 1 — No imputar por moda
+
+El faltante **no es ruido: es información**.
+
+::: {.columns}
+::: {.column width="50%"}
+| Grupo | Conversión |
+|:---|---:|
+| Educación declarada | 11.3% |
+| Educación `unknown` | **14.5%** |
+| Declara no tener impago | 12.9% |
+| Impago `unknown` | **5.2%** |
+
+: {.striped}
+:::
+
+::: {.column width="50%"}
+**Imputar por moda destruiría esa señal.**
+
+Peor aún: afirmaría que 8,597 clientes no tienen deudas impagas, cuando lo único
+que sabemos es que no contestaron.
+
+**Decisión:** conservar el faltante como categoría propia, `desconocido`.
+:::
+:::
+
+## Decisión 2 — El centinela 999
+
+En `pdays`, el valor **999 no significa "hace 999 días"**: codifica *"nunca fue
+contactado antes"*. Afecta al **`r v("pct_pdays_999")`%** de los registros.
+
+. . .
+
+::: {.columns}
+::: {.column width="50%"}
+**Si se deja como número:**
+
+- La media es de **962.5 días** — un valor que no describe a ningún cliente real
+- Genera una correlación falsa de **−0.588** con `previous`
+:::
+
+::: {.column width="50%"}
+**Solución:** separar en dos variables
+
+- `contactado_antes` → 0 / 1
+- `dias_ultimo_contacto` → `NA` si no aplica
+
+La correlación falsa **baja a −0.04**: era un artefacto del código.
+:::
+:::
+
+## Decisión 3 — Una variable con 3 casos
+
+`default` (impago de crédito) se distribuye así:
+
+| Categoría | Registros |
+|:---|---:|
+| `no` | 32,588 |
+| `unknown` | 8,597 |
+| `yes` | **3** |
+
+: {.striped tbl-colwidths="[50,50]"}
+
+. . .
+
+Tres casos positivos entre 41,188 no permiten estimar nada: cualquier partición
+dejaría la categoría con cero o un caso.
+
+**Decisión:** sustituir por `impago_desconocido`, que sí discrimina
+(5.2% frente a 12.9%).
+
+## Resumen del preprocesamiento
+
+::: {.columns}
+::: {.column width="55%"}
+| Paso | Resultado |
+|:---|:---|
+| Renombrado | 21 columnas a `snake_case` |
+| Duplicados | −12 filas |
+| Nulos encubiertos | 6 columnas → `desconocido` |
+| Centinela 999 | `pdays` → 2 variables |
+| Variable degenerada | `default` → `impago_desconocido` |
+| Tipos de dato | 3 factores ordenados |
+| Enriquecimiento | +5 variables derivadas |
+
+: {.striped}
+:::
+
+::: {.column width="45%"}
+<br>
+
+::: {style="text-align: center; font-size: 1.6em; font-weight: bold;"}
+`r v("filas_original", 0)` × `r v("columnas_original", 0)`
+:::
+
+::: {style="text-align: center; font-size: 2em; color: #52514e;"}
+↓
+:::
+
+::: {style="text-align: center; font-size: 1.6em; font-weight: bold; color: #2a78d6;"}
+`r v("filas_final", 0)` × `r v("columnas_final", 0)`
+:::
+:::
+:::
+
+La bitácora completa, con la justificación de cada paso, está en el informe.
+
+# 3. Hallazgos {background-color="#2a78d6"}
+
+## El desbalance manda sobre todo lo demás
+
+::: {.columns}
+::: {.column width="42%"}
+![](figs/fig_target.png)
+:::
+
+::: {.column width="58%"}
+Solo el **`r v("tasa_global_pct")`%** suscribe.
+
+. . .
+
+::: {.callout-important appearance="simple"}
+**Consecuencia para la Entrega 2:** un modelo que prediga "no" siempre acertaría
+el **88.7%** de las veces sin haber aprendido nada.
+
+La exactitud es inútil aquí. Habrá que evaluar con precisión, exhaustividad, F1
+y AUC.
+:::
+:::
+:::
+
+## Cuatro variables miden lo mismo
+
+![](figs/fig_corr_pearson.png){width="62%"}
+
+`euribor_3m` ~ `var_empleo`: **r = `r v("r_euribor_varempleo", 3)`**.
+Una explica el **94.5%** de la varianza de la otra.
+
+## Colinealidad: implicancia práctica
+
+::: {.columns}
+::: {.column width="50%"}
+Las cuatro macroeconómicas son manifestaciones del **mismo ciclo económico**,
+medidas mensualmente:
+
+- `euribor_3m` ~ `var_empleo` → **0.972**
+- `euribor_3m` ~ `n_empleados` → **0.945**
+- `var_empleo` ~ `n_empleados` → **0.907**
+- `var_empleo` ~ `idx_precios` → **0.775**
+:::
+
+::: {.column width="50%"}
+Incluirlas todas en un modelo lineal produce:
+
+- Inflación de la varianza de los coeficientes
+- Signos erráticos
+- Interpretaciones sin sentido
+
+**Recomendación:** conservar **una sola** —`euribor_3m`— o aplicar reducción de
+dimensionalidad.
+:::
+:::
+
+## La variable más predictiva es inutilizable
+
+![](figs/fig_duracion.png){width="78%"}
+
+`duracion` es la variable más correlacionada con el objetivo
+(**r = `r v("r_duracion_target", 3)`**).
+
+## Por qué `duracion` debe excluirse
+
+::: {.columns}
+::: {.column width="50%"}
+**1. No está disponible a tiempo**
+
+La duración solo se conoce **cuando la llamada terminó**. Al decidir a quién
+llamar, el dato no existe.
+
+**2. La causalidad va al revés**
+
+No es que hablar mucho convenza al cliente: el cliente interesado prolonga la
+conversación.
+:::
+
+::: {.column width="50%"}
+**3. Contiene el resultado**
+
+Una llamada de 0 segundos implica necesariamente un "no".
+
+::: {.callout-warning appearance="simple"}
+Esto es **fuga de información** (*data leakage*). Un modelo que la incluyera
+tendría métricas excelentes y sería inútil en producción.
+:::
+:::
+:::
+
+## Quién sí compra
+
+![](figs/fig_conversion_cat.png){width="76%"}
+
+## Tres segmentos accionables
+
+::: {.columns}
+::: {.column width="33%"}
+### Ya dijeron que sí
+
+**`r v("conv_poutcome_success")`%** de conversión entre quienes aceptaron una
+oferta anterior.
+
+Casi **6×** la media global. Son solo 1,373 personas, ya identificadas.
+:::
+
+::: {.column width="33%"}
+### El canal importa
+
+Móvil: **`r v("conv_cellular")`%**
+
+Fijo: **`r v("conv_telephone")`%**
+
+Casi el triple de efectividad por el mismo esfuerzo.
+:::
+
+::: {.column width="33%"}
+### La edad, en forma de U
+
+60+ años: **45.5%**
+
+17–25 años: **21.0%**
+
+36–45 años: **8.5%**
+
+Los extremos compran; el centro, no.
+:::
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+La correlación lineal de la edad con el objetivo es de solo **+0.030**. El
+efecto en U es invisible para Pearson: por eso no basta con mirar correlaciones.
+:::
+
+## El hallazgo de mayor impacto operativo
+
+![](figs/fig_estacionalidad.png){width="66%"}
+
+## Se llama cuando no funciona
+
+::: {.columns}
+::: {.column width="50%"}
+**Mayo** concentra **`r v("n_may", 0)` llamadas** —un tercio de toda la
+campaña— y convierte apenas al **`r v("conv_may")`%**: la peor tasa del año.
+
+**Marzo** convierte al **`r v("conv_mar")`%** con solo 546 llamadas.
+Diciembre, septiembre y octubre se sitúan entre el 43% y el 49%.
+:::
+
+::: {.column width="50%"}
+::: {.callout-tip appearance="simple"}
+**Lectura operativa:** los recursos están mal asignados.
+:::
+
+::: {.callout-caution appearance="simple"}
+**Lectura cautelosa:** los meses buenos tienen volúmenes pequeños y `mes` está
+confundido con las variables macroeconómicas. Los datos no permiten separar
+ambos efectos.
+:::
+:::
+:::
+
+# 4. Conclusiones {background-color="#2a78d6"}
+
+## Qué nos llevamos
+
+::: {.columns}
+::: {.column width="50%"}
+### Variables clave
+
+1. `resultado_campana_previa` — 65.1%
+2. `mes` / `trimestre` — 6.4% a 50.6%
+3. Bloque macro (**una sola**)
+4. `tipo_contacto` — 14.7% vs 5.2%
+5. `grupo_etario` — efecto en U
+6. `ocupacion` — 6.9% a 31.4%
+:::
+
+::: {.column width="50%"}
+### Variables a descartar
+
+- **`duracion`** — fuga de información
+- **`default`** — 3 casos en una categoría
+- **`prestamo_vivienda` / `prestamo_personal`** — 11.6% y 10.9%: no distinguen nada
+- **4 de 5 macroeconómicas** — colinealidad
+:::
+:::
+
+## La lección metodológica
+
+::: {.r-fit-text}
+El dataset **no estaba limpio**
+:::
+
+<br>
+
+Las funciones estándar reportaban **cero faltantes**. En realidad había:
+
+- Valores ausentes en **6 variables**, disfrazados de categoría
+- Un **código centinela** que distorsionaba una media en tres órdenes de magnitud
+- Una variable con **3 observaciones** en una de sus categorías
+- Una correlación de **−0.588** que era puro artefacto
+
+. . .
+
+**Ninguno se detecta sin inspeccionar el contenido de cada columna.**
+
+## Para la Entrega 2
+
+| Decisión | Motivo |
+|:---|:---|
+| Excluir `duracion` de los predictores | Fuga de información |
+| Evaluar con F1 y AUC, nunca con exactitud | Desbalance del 11.27% |
+| Partición estratificada por el objetivo | Preservar la proporción de clases |
+| Considerar remuestreo o ponderación | Clase minoritaria |
+| Preferir modelos de árbol, o usar `grupo_etario` | El efecto de la edad es no lineal |
+
+: {.striped}
+
+##  {background-color="#2a78d6"}
+
+::: {.r-fit-text}
+Gracias
+:::
+
+::: {style="text-align: center; margin-top: 1em;"}
+**Entrega P1 — Bank Marketing**
+
+Introducción a Ciencia de Datos e Inteligencia Artificial
+:::

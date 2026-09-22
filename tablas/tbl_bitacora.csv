@@ -1,0 +1,9 @@
+Paso,Decision y justificacion
+Renombrado de columnas,"21 columnas a snake_case en espanol; se eliminan los puntos de emp.var.rate y similares, que rompen las formulas de R."
+Duplicados,Se eliminan 12 filas identicas (0.029% del total): dos llamadas reales no coinciden en las 21 variables.
+Nulos encubiertos,'unknown' se convierte a NaN en 6 columnas para hacer medible el faltante antes de decidir su tratamiento.
+Centinela 999,pdays=999 codifica 'nunca contactado'. Se separa en 'contactado_antes' (0/1) y 'dias_ultimo_contacto' (NaN si no aplica); asi la media deja de estar contaminada.
+Variable degenerada,"credito_impago tiene solo 3 casos 'yes' en 41,188 (0.007%) y 20.87% 'unknown'. Se reemplaza por 'impago_desconocido', que si discrimina (5.15% vs 12.88% de conversion)."
+Imputacion,Se descarta la imputacion por moda: el faltante es informativo (educacion 'unknown' convierte 14.50% vs 11.27% global). Se conserva como categoria explicita 'desconocido'.
+Tipos de dato,"educacion, mes y dia_semana pasan a factor ORDENADO; el resto a factor nominal; se crea 'suscribio_bin' (0/1) para correlaciones."
+Enriquecimiento,"5 variables derivadas: grupo_etario, contacto_intensivo, duracion_min, exito_previo y trimestre."

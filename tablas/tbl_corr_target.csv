@@ -1,0 +1,11 @@
+,Correlacion_con_target
+duracion,0.405
+n_empleados,-0.355
+euribor_3m,-0.308
+var_empleo,-0.298
+n_contactos_previos,0.23
+idx_precios,-0.136
+n_contactos_campana,-0.066
+idx_confianza,0.055
+dias_ultimo_contacto,-0.035
+edad,0.03

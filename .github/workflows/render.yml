@@ -1,0 +1,135 @@
+# ==============================================================================
+# Verificación automática de la Entrega P1 — Bank Marketing
+# ------------------------------------------------------------------------------
+# Corre en los servidores de GitHub (Ubuntu), no en la máquina del estudiante.
+# Comprueba las cuatro cosas que no se pudieron verificar en local:
+#
+#   1. Que el pipeline de Python corre de principio a fin
+#   2. Que el script de R corre de principio a fin
+#   3. Que UTEC-Report1.qmd renderiza a PDF
+#   4. Que UTEC-Presentation.qmd renderiza a HTML
+#
+# El PDF y el HTML quedan descargables como artefactos del run.
+# Si algo falla, el log dice exactamente en qué línea.
+# ==============================================================================
+
+name: Verificar entrega P1
+
+# Se ejecuta en cada push, en cada pull request y también a mano desde la
+# pestaña Actions (workflow_dispatch).
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------------
+      # 1. PIPELINE DE PYTHON  (genera figs/ y tablas/)
+      # ------------------------------------------------------------------
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias de Python
+        run: pip install pandas numpy matplotlib seaborn scipy
+
+      - name: Ejecutar el pipeline de Python
+        run: python src/eda_bank.py
+
+      - name: Comprobar que se generaron las 13 figuras y las 14 tablas
+        run: |
+          n_figs=$(ls figs/*.png | wc -l)
+          n_tabs=$(ls tablas/*.csv | wc -l)
+          echo "Figuras generadas: $n_figs"
+          echo "Tablas generadas:  $n_tabs"
+          test "$n_figs" -eq 13 || { echo "ERROR: se esperaban 13 figuras"; exit 1; }
+          test "$n_tabs" -eq 14 || { echo "ERROR: se esperaban 14 tablas"; exit 1; }
+
+      # ------------------------------------------------------------------
+      # 2. PIPELINE DE R
+      # ------------------------------------------------------------------
+      - name: Instalar librerías de sistema que necesitan los paquetes de R
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcurl4-openssl-dev libssl-dev libxml2-dev \
+            libfontconfig1-dev libfreetype6-dev libpng-dev \
+            libharfbuzz-dev libfribidi-dev libtiff5-dev libjpeg-dev
+
+      - name: Instalar R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          # Descarga paquetes ya compilados en vez de compilarlos: minutos en
+          # lugar de media hora.
+          use-public-rspm: true
+
+      - name: Instalar paquetes de R
+        run: |
+          install.packages(c("tidyverse", "scales", "knitr", "kableExtra", "rmarkdown"))
+        shell: Rscript {0}
+
+      - name: Ejecutar el pipeline de R
+        run: Rscript src/eda_bank.R
+
+      - name: Comprobar la salida del pipeline de R
+        run: |
+          echo "Figuras R: $(ls figs_R/*.png | wc -l)"
+          echo "Tablas R:  $(ls tablas_R/*.csv | wc -l)"
+
+      # ------------------------------------------------------------------
+      # 3 y 4. RENDERIZADO DE LOS DOCUMENTOS QUARTO
+      # ------------------------------------------------------------------
+      - name: Instalar Quarto y TinyTeX
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          # TinyTeX es una distribución LaTeX mínima; Quarto instala sola
+          # cualquier paquete que falte durante el renderizado.
+          tinytex: true
+
+      - name: Renderizar el informe a PDF
+        run: quarto render UTEC-Report1.qmd
+
+      - name: Renderizar la presentación a HTML
+        run: quarto render UTEC-Presentation.qmd
+
+      # ------------------------------------------------------------------
+      # RESULTADOS DESCARGABLES
+      # ------------------------------------------------------------------
+      - name: Publicar el informe en PDF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pdf
+          path: UTEC-Report1.pdf
+          if-no-files-found: warn
+
+      - name: Publicar la presentación en HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: presentacion-html
+          path: |
+            UTEC-Presentation.html
+            UTEC-Presentation_files/
+          if-no-files-found: warn
+
+      - name: Publicar las figuras y tablas generadas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: figuras-y-tablas
+          path: |
+            figs/
+            tablas/
+            figs_R/
+            tablas_R/
+          if-no-files-found: warn

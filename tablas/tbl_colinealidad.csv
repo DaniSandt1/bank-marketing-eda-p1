@@ -1,0 +1,8 @@
+Variable_A,Variable_B,Pearson,Spearman,Covarianza
+var_empleo,euribor_3m,0.972,0.94,2.649
+euribor_3m,n_empleados,0.945,0.929,118.441
+var_empleo,n_empleados,0.907,0.945,102.937
+var_empleo,idx_precios,0.775,0.665,0.705
+idx_precios,euribor_3m,0.688,0.491,0.691
+idx_precios,n_empleados,0.522,0.465,21.829
+n_contactos_previos,n_empleados,-0.501,-0.439,-17.931

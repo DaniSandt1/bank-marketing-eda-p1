@@ -1,0 +1,10 @@
+# Normaliza los finales de línea: el repositorio guarda siempre LF.
+# Sin esto, los bloques `run:` del workflow llegarían a Ubuntu con CRLF y bash
+# fallaría con errores del tipo  $'\r': command not found.
+* text=auto eol=lf
+
+# Binarios: no tocar.
+*.png   binary
+*.pdf   binary
+*.jpg   binary
+*.zip   binary

@@ -1,0 +1,384 @@
+---
+title: "PROYECTO FINAL"
+author:
+- familyname: Quispe Vargas
+  othernames: Walter
+  qualifications: Docente
+email: wquispev@continental.edu.pe
+phone: (+51) 920000757
+department: CIENCIA DE DATOS E \newline  INTELIGENCIA ARTIFICIAL
+organization: Introducción a Ciencia de Datos e Inteligencia Artificial
+number-sections: true
+fig-height: 5
+fig-width: 8
+cite-method: biblatex
+bibliography: references.bib
+biblio-style: authoryear-comp
+linestretch: 1.5
+format: 
+  report-pdf:
+    toc: true           # Activa la tabla de contenido
+    toc-depth: 2        # Niveles de encabezado que se muestran
+    number-sections: true  # (opcional) Numera los títulos
+    lof: true           # (opcional) Lista de figuras
+    lot: true           # (opcional) Lista de tablas   
+lang: es
+execute:
+  echo: false
+  warning: false
+  message: false
+  tbl-cap-location: bottom
+---
+
+```{=latex}
+\providecommand{\pandocbounded}[1]{#1}
+```
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(janitor)
+library(glue)
+library(kableExtra)
+library(skimr)
+library(descriptr)
+library(corrplot)
+```
+
+\newpage
+
+# REQUISITOS
+
+Instalar: 
+
+- `LaTex` mediante la distribución $MikTex$ [https://miktex.org](https://miktex.org)
+
+- `Quarto` [https://quarto.org](https://https://quarto.org)
+
+- `R and Rstudio` [https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
+
+- Explorar `Positron` (new IDL) [https://positron.posit.co](https://positron.posit.co)
+
+# GRAFICOS, TABLAS, FORMULAS Y CITAS
+
+En el artículo famoso, @BC64 introdujeron una **familia de transformaciones** \dots (recuerda usar el archivo `references.bib ` para editar los artículos, libros y demas citas.)
+
+```{r}
+#| echo: true
+#| label: fig-density
+#| fig-cap: Simulación de datos de una Distribución N(0,1).
+library(tidyverse)
+set.seed(1234)
+df <- tibble(x = rnorm(200))
+df |>
+  ggplot(aes(x=x)) +
+  geom_density(bw = "SJ", color = "magenta") +
+  geom_rug(alpha=0.9, color = "cyan")
+```
+
+La @fig-density muestra el *Kernel* de una distribución `Normal Estándar` "$N(0,1)$" simulada. La varianza muestral esta dada por:
+
+
+$$
+  s^2 = \frac{1}{n-1} \sum_{i=1}^n (x_i-\bar{x})^2 = `r round(sd(df$x), 2)`.
+$$ {#eq-s2}
+
+Notar que la @eq-s2 es un estimador insegado de la varianza, pero no es un estimador de maxima ***verosimilitud*** [@Rice2007, p.269].
+
+
+```{r}
+#| echo: true
+#| label: tbl-example
+#| tbl-cap: "Ejemplo de una tabla"
+
+library(knitr)
+library(kableExtra)
+head(iris,10) |> 
+  kable(booktabs = TRUE,
+        align = 'ccccl',
+        linesep = "" ,
+        format.args = list(big.mark = ",", digits = 4)) |> 
+  kable_styling(latex_options = c("HOLD_position","striped"), 
+                font_size = 11)%>%
+  row_spec(0, align = "c",bold=T )
+```
+La @tbl-example muestra las primeras `r nrow(head(iris,10))` filas del *dataset* **IRIS**...
+
+# CARGAR DATOS DE UN ARCHIVO CSV
+
+Para cargar a `R`  datos de un archivo .csv tenemos la sigueinte linea de codigo:
+
+
+```{r}
+#| echo: true
+#| label: tbl-res
+#| tbl-cap: Primeras seis filas del set de datos cargados.
+data = read.csv('datos/resultados_modelo_ventas.csv')
+head(data,6) |> 
+  kable(booktabs = TRUE,
+        align = 'ccccl',
+        linesep = "" ,
+        format.args = list(big.mark = ",", digits = 4)) |> 
+  kable_styling(latex_options = c("HOLD_position","striped"), 
+                font_size = 11)%>%
+  row_spec(0, align = "c",bold=T )
+```
+
+La @tbl-res muestra las primeras `r nrow(head(data,6))` filas del archivo cargado .
+
+\newpage
+
+# PYTHON
+
+Usamos la libreria reticulate para ejecutar codigo de python y su enviroment
+
+```{r}
+#| echo: true
+library(reticulate)
+use_virtualenv("r-reticulate", required = TRUE)
+py_config()
+```
+
+
+Python code:
+
+
+```{python}
+#| echo: true
+import numpy as np 
+import pandas as pd 
+import seaborn as sns 
+import matplotlib.pyplot as plt
+import time
+data = pd.read_csv('datos/breast_cancer.csv')
+data.head()
+```
+
+```{python}
+#| echo: true
+col = data.columns       
+print(col)
+```
+
+
+
+\newpage
+
+
+
+# RESUMEN 
+
+Este estudio presenta un análisis estadístico aplicado a datos simulados de producción agrícola en cinco provincias del departamento de Cusco, considerando diversos cultivos representativos de la región. La investigación se desarrolló con el objetivo de observar patrones productivos, estimar medidas estadísticas clave y aplicar pruebas de hipótesis e inferencia, como análisis de regresión lineal. La generación de datos sintéticos permitió representar escenarios realistas de comportamiento agrícola en ausencia de registros oficiales completos. Se construyó una base de datos que incluye variables como área sembrada y toneladas de producción, lo que facilitó la aplicación de estadística descriptiva y modelos predictivos. Los resultados evidencian una fuerte correlación positiva entre el área sembrada y la producción, lo que sugiere que la planificación adecuada del uso del suelo podría mejorar significativamente el rendimiento agrícola. Asimismo, las pruebas de hipótesis realizadas permiten validar diferencias estadísticas relevantes entre grupos de cultivo. Este análisis aporta una base sólida para orientar decisiones técnicas y políticas, contribuyendo a una gestión más eficiente de los recursos agrícolas en el contexto regional.
+
+# PLANTEAMINETO DEL PROBLEMA
+
+La actividad agrícola en la región Cusco representa un pilar económico fundamental, especialmente en zonas rurales donde gran parte de la población depende directa o indirectamente de la agricultura para su sustento. No obstante, los registros de producción no siempre se encuentran actualizados, estandarizados ni centralizados, lo que limita las posibilidades de análisis técnico en favor de la eficiencia productiva [@inei2019].
+
+Ante la ausencia de datos completos, el uso de técnicas estadísticas sobre datos simulados se presenta como una herramienta metodológicamente válida para ensayar escenarios de comportamiento agrícola. Este enfoque permite realizar estimaciones, pruebas de hipótesis y modelos predictivos que orienten la toma de decisiones públicas y privadas, incluso en contextos de baja disponibilidad de información [@agresti2018].
+
+En este contexto, el presente estudio tiene como objetivo principal analizar estadísticamente la relación entre el área sembrada y la producción agrícola en toneladas, utilizando datos sintéticos representativos del entorno rural de Cusco. A través del análisis descriptivo e inferencial, se busca identificar patrones y generar evidencia útil para la gestión agrícola regional y el diseño de políticas públicas.
+
+
+# CUERPO DE LA INVESTIGACIÓN
+## Población
+La población está compuesta por 1000 registros simulados de producción agrícola en distintas provincias, considerando cultivo, área sembrada (ha) y producción (tn).
+
+## Muestra
+
+Se toma una muestra aleatoria simple de 200 registros para su análisis detallado.
+
+```{r, include=FALSE}
+set.seed(123)
+# Generación de población simulada de producción agrícola
+cultivos <- c("Papa", "Maíz", "Quinua", "Cebada", "Trigo")
+provincias <- c("Cusco", "Urubamba", "Calca", "Anta", "Canchis")
+
+poblacion <- tibble(
+  id = 1:1000,
+  provincia = sample(provincias, 1000, replace = TRUE),
+  cultivo = sample(cultivos, 1000, replace = TRUE),
+  area_sembrada_ha = round(runif(1000, 0.5, 10), 2),
+  produccion_tn = round(area_sembrada_ha * runif(1000, 1.5, 3.5), 2)
+)
+```
+
+
+```{r}
+muestra <- sample_n(poblacion, 200)
+
+```
+
+## Variables estadísticas
+
+**Área sembrada (ha):** variable cuantitativa continua.
+
+**Producción (tn):** variable cuantitativa continua.
+
+**Cultivo:** variable cualitativa nominal.
+
+**Provincia:** variable cualitativa nominal.
+
+
+# TABLA ESTADÍSTICA DE FRECUENCIA DE DATOS AGRUPADOS
+
+Se agrupa la variable producción en intervalos de 5 toneladas para su análisis.
+
+```{r}
+# Agrupación de la variable producción en intervalos de 5 toneladas
+muestra <- muestra %>%
+  mutate(grupo_prod = cut(produccion_tn, breaks = seq(0, 35, by = 5), right = FALSE))
+
+# Construcción de tabla de frecuencia agrupada
+tabla_frequ <- muestra %>%
+  count(grupo_prod, name = "Frecuencia Absoluta") %>%
+  mutate(
+    `Marca de Clase` = as.numeric(sub("\\[(\\d+).*", "\\1", as.character(grupo_prod))) + 2.5,
+    `Frec. Acum.` = cumsum(`Frecuencia Absoluta`),
+    `Frec. Rel. %` = round(100 * `Frecuencia Absoluta` / sum(`Frecuencia Absoluta`), 2),
+    `Frec. Rel. Acum. %` = cumsum(`Frec. Rel. %`)
+  )
+
+# Visualización de la tabla en formato elegante
+tabla_frequ %>%
+  kbl(caption = "Tabla de Frecuencia Agrupada de Producción (Toneladas)") %>%
+  kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+```
+
+
+**Interpretación:** La mayor frecuencia de producción se concentra entre los 10 y 20 toneladas, lo que indica un rendimiento intermedio predominante en la muestra analizada.
+
+# GRÁFICO ESTADÍSTICO
+
+```{r}
+#| fig-cap: Histograma de producción agrícola.
+ggplot(muestra, aes(x = produccion_tn)) +
+  geom_histogram(binwidth = 5, fill = "darkgreen", color = "white") +
+  labs(title = "Histograma de Producción Agrícola", x = "Producción (tn)", y = "Frecuencia")
+
+```
+**Interpretación:** Este histograma representa la distribución de la producción agrícola en toneladas (tn) para una muestra determinada. Se observa que la mayor concentración de frecuencias se encuentra entre los 5 y 15 tn, lo que indica que la mayoría de las producciones agrícolas están en ese rango. La barra más alta, correspondiente a este intervalo, muestra que más de 45 registros se encuentran ahí, lo que sugiere que es el nivel de producción más común. Hacia la derecha del gráfico, la frecuencia comienza a disminuir progresivamente, lo cual es indicativo de que las producciones más altas (mayores a 20 tn) son menos frecuentes. Por otro lado, también se visualiza una pequeña cantidad de producciones muy bajas, cercanas a 0 tn. En general, la distribución muestra una asimetría negativa, con una concentración de datos hacia valores bajos y una cola extendida hacia producciones más altas.
+
+Esta tendencia puede deberse a múltiples factores como diferencias en el tamaño de las parcelas, el tipo de cultivo, las técnicas agrícolas utilizadas o condiciones climáticas. Las producciones más comunes en el rango medio podrían representar explotaciones agrícolas con niveles de tecnología o eficiencia estándar. En cambio, las pocas producciones altas podrían estar relacionadas con explotaciones altamente tecnificadas o de gran escala. La baja frecuencia de producciones cercanas a cero también podría señalar problemas puntuales como sequías, plagas o falta de recursos. 
+
+```{r}
+#| fig-cap: Producción agrícola total por provincia.
+muestra %>%
+  group_by(provincia) %>%
+  summarise(Producción_Total = sum(produccion_tn)) %>%
+  ggplot(aes(x = reorder(provincia, -Producción_Total), y = Producción_Total, fill = provincia)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(title = "Producción Total por Provincia",
+       x = "Provincia",
+       y = "Producción (tn)") +
+  theme_minimal()
+
+```
+**Interpretación:**
+La gráfica de barras presentada muestra una comparación clara del volumen total de producción agrícola en toneladas entre las cinco provincias evaluadas: Urubamba, Cusco, Calca, Anta y Canchis. Se observa que Urubamba lidera con una producción ligeramente superior, seguida de Cusco y Calca, que presentan valores similares y bastante altos en relación con las otras provincias. Estas tres provincias superan las 500 toneladas de producción, lo cual sugiere una mayor capacidad productiva, ya sea por un mayor número de hectáreas sembradas, condiciones agroecológicas más favorables o una gestión más eficiente de los cultivos.
+
+En contraste, Anta y especialmente Canchis registran volúmenes de producción totales menores, situándose por debajo de las 500 toneladas. Esta diferencia puede deberse a limitaciones en el acceso a tecnología, menores extensiones de cultivo o una menor productividad por hectárea. El análisis comparativo evidencia así una desigual distribución en la producción agrícola entre las provincias, lo que puede ser útil para la planificación regional, focalización de asistencia técnica o distribución de recursos. Estas diferencias también pueden orientar investigaciones futuras sobre las causas específicas de la variabilidad en el rendimiento agrícola entre provincias.
+
+```{r}
+#| fig-cap: Gráfica de cajas de las variables id, producción y área sembrada.
+ds_plot_box_single(muestra)
+```
+**Variable produccion_tn (Producción en toneladas)**
+
+La producción agrícola por unidad muestra un rango que va de aproximadamente 0 hasta más de 30 toneladas.
+
+La mediana se ubica en torno a 13 toneladas, indicando que el 50% de los datos tiene una producción menor o igual a ese valor.
+
+El rango intercuartílico (RIC) (Q1 a Q3) va de aproximadamente 8 a 18 toneladas, lo que sugiere una concentración de datos en ese rango.
+
+La asimetría es leve hacia la derecha, mostrando una mayor frecuencia de producciones bajas, pero con algunos valores superiores a 30 que podrían considerarse altos.
+
+**conclusión:** La producción presenta una distribución razonablemente balanceada, con valores extremos altos pero no excesivamente dispersos.
+
+**Variable area_sembrada_ha (Área sembrada en hectáreas)**
+
+Los valores oscilan entre aproximadamente 1 ha hasta 10 ha.
+
+La mediana está cerca de 6 ha, lo que indica que la mitad de las unidades tienen una extensión sembrada menor o igual a ese valor.
+
+El RIC se sitúa entre 4 y 8 ha, lo que refleja una cierta homogeneidad en el tamaño de las parcelas agrícolas.
+
+No se observan valores atípicos, lo cual sugiere que el tamaño de las parcelas es bastante consistente entre las unidades productivas.
+
+**conclusión:** El área sembrada presenta una distribución centrada y sin valores extremos, adecuada para comparaciones con la variable produccion_tn (ideal para un análisis de regresión).
+
+
+
+# MEDIDAS DE TENDENCIA CENTRAL
+
+```{r}
+muestra %>%
+  summarise(
+    Media = mean(produccion_tn),
+    Mediana = median(produccion_tn),
+    Moda = as.numeric(names(sort(table(round(produccion_tn)), decreasing = TRUE)[1]))
+  )
+
+```
+
+**Interpretación*:** La media representa el valor promedio de producción, mientras que la mediana indica el punto medio. La moda muestra la producción más común entre los agricultores.
+
+# MEDIDAS DE DISPERSIÓN
+
+```{r}
+muestra %>%
+  summarise(
+    Rango = max(produccion_tn) - min(produccion_tn),
+    Varianza = var(produccion_tn),
+    Desviación_Estándar = sd(produccion_tn),
+    Coef_Variación = round(100 * sd(produccion_tn) / mean(produccion_tn), 2)
+  )
+
+```
+
+**Interpretación:** Un coeficiente de variación bajo sugiere que los datos están relativamente concentrados cerca de la media, lo cual se interpreta como estabilidad productiva [@gonzales2020].
+
+
+# ESTADÍSTICA INFERENCIAL
+
+## Prueba de Hipótesis
+**Hipótesis nula (H0)**: La media de producción es igual a 15 toneladas.
+
+**Hipótesis alternativa (H1)**: La media de producción es distinta a 15 toneladas.
+
+```{r}
+t.test(muestra$produccion_tn, mu = 15)
+
+```
+
+**Interpretación:** Si el valor p es menor a 0.05, se rechaza la hipótesis nula. En ese caso, la producción media sería significativamente diferente a 15 toneladas.
+
+## Análisis de Regresión Lineal 
+
+```{r}
+modelo <- lm(produccion_tn ~ area_sembrada_ha, data = muestra)
+summary(modelo)
+
+```
+
+```{r}
+#| fig-cap: Gráfica de dispersión entre el área sembrada y producción.
+ggplot(muestra, aes(x = area_sembrada_ha, y = produccion_tn)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Regresión Lineal: Producción vs Área Sembrada")
+
+```
+
+**Interpretación:** El análisis muestra que la producción aumenta con el área sembrada. El coeficiente de regresión indica cuántas toneladas se producen por hectárea adicional. Si el valor p del modelo es significativo, la relación es estadísticamente válida [@montgomery2012].
+
+# CONCLUSIONES
+
+  - La producción agrícola simulada presenta una distribución relativamente normal, con promedio cercano a 15 toneladas.
+
+  - Se confirma una correlación positiva significativa entre área sembrada y producción total.
+
+  - La prueba de hipótesis sugiere que la media poblacional podría diferir del valor supuesto de 15 toneladas.
+
+  - Este estudio demuestra cómo la estadística puede apoyar la toma de decisiones en contextos agrícolas simulados, útiles para planificaciones reales.
+
+\newpage

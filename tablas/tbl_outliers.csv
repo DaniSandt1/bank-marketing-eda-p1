@@ -1,0 +1,11 @@
+Variable,Lim_inf,Lim_sup,N_outliers,Pct_outliers
+edad,9.5,69.5,468,1.14
+duracion,-223.5,644.5,2963,7.2
+n_contactos_campana,-2.0,6.0,2406,5.84
+dias_ultimo_contacto,-3.0,13.0,82,5.41
+n_contactos_previos,0.0,0.0,5625,13.66
+var_empleo,-6.6,6.2,0,0.0
+idx_precios,91.7,95.37,0,0.0
+idx_confianza,-52.15,-26.95,446,1.08
+euribor_3m,-4.08,10.39,0,0.0
+n_empleados,4905.6,5421.6,0,0.0

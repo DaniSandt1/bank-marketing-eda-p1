@@ -1,0 +1,43 @@
+% =============================================================================
+% PREÁMBULO LaTeX — Entrega P1, Bank Marketing
+% -----------------------------------------------------------------------------
+% Se inyecta en la plantilla numbats/report mediante la clave
+% `include-in-header` del YAML de UTEC-Report1.qmd.
+%
+% Solo contiene ajustes tipográficos y de espaciado. Deliberadamente NO se
+% redefine ningún comando de la plantilla ni se cargan paquetes que ésta ya
+% incluya (amsmath, amssymb, booktabs, longtable, graphicx, hyperref), para
+% evitar colisiones de opciones en la carga.
+% =============================================================================
+
+% --- Espaciado de tablas -----------------------------------------------------
+% Las tablas de descriptivos son anchas y densas; un poco de aire vertical
+% entre filas las hace legibles sin reducir más el tamaño de fuente.
+\renewcommand{\arraystretch}{1.15}
+
+% --- Control de viudas y huérfanas -------------------------------------------
+% Evita que una línea suelta de un párrafo quede aislada al final o al inicio
+% de página, algo frecuente en un documento con muchas figuras intercaladas.
+\widowpenalty=10000
+\clubpenalty=10000
+
+% --- Figuras -----------------------------------------------------------------
+% La plantilla permite que una figura ocupe una página entera; se relaja el
+% umbral para que las figuras en rejilla (histogramas, boxplots) floten menos.
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.7}
+
+% --- Notación estadística del informe ----------------------------------------
+% Comandos propios para que la notación sea consistente en todo el documento
+% y pueda cambiarse desde un único lugar.
+\providecommand{\Cov}{\mathrm{Cov}}          % covarianza
+\providecommand{\Var}{\mathrm{Var}}          % varianza
+\providecommand{\RIC}{\mathrm{RIC}}          % rango intercuartílico
+\providecommand{\corr}[2]{r_{#1#2}}          % coeficiente de correlación
+
+% --- Resaltado de cifras clave -----------------------------------------------
+% \cifra{11.27\%} destaca un valor numérico en el cuerpo del texto sin recurrir
+% a negrita, que ya se usa para los términos conceptuales.
+\providecommand{\cifra}[1]{\textbf{\texttt{#1}}}

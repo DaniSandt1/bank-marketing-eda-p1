@@ -1,0 +1,32 @@
+# --- Salidas generadas por los pipelines --------------------------------------
+# figs/ y tablas/ SÍ se versionan: el informe las necesita para renderizar.
+# Lo de abajo se regenera en cada ejecución y no aporta nada al repositorio.
+datos/bank_limpio.csv
+datos/bank_limpio_R.csv
+figs_R/
+tablas_R/
+
+# --- Salidas de Quarto --------------------------------------------------------
+UTEC-Report1.pdf
+UTEC-Report1.tex
+UTEC-Presentation.html
+UTEC-Presentation_files/
+/.quarto/
+*_cache/
+*_files/
+
+# --- R ------------------------------------------------------------------------
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# --- Python -------------------------------------------------------------------
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- Sistema ------------------------------------------------------------------
+.DS_Store
+Thumbs.db
