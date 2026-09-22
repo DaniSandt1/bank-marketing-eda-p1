@@ -304,7 +304,8 @@ nominales.
 
 ## Enriquecimiento: creación de nuevas variables
 
-Se derivaron cinco variables, cada una con una justificación concreta:
+Se derivaron cinco variables, recogidas en la @tbl-enriquecimiento, cada una con
+una justificación concreta:
 
 | Variable | Construcción | Por qué |
 |:---|:---|:---|
@@ -313,6 +314,8 @@ Se derivaron cinco variables, cada una con una justificación concreta:
 | `duracion_min` | `duracion / 60` | Unidad interpretable por el área comercial |
 | `exito_previo` | `resultado_campana_previa == "success"` | Aísla la señal más fuerte del conjunto |
 | `trimestre` | Agrupación de `mes` | Sintetiza la estacionalidad detectada |
+
+: Variables derivadas en la etapa de enriquecimiento. {#tbl-enriquecimiento}
 
 El dataset resultante tiene **`r v("filas_final", 0)` filas** y
 **`r v("columnas_final", 0)` columnas**.
