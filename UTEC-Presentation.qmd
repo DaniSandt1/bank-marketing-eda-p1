@@ -18,6 +18,10 @@ format:
     fig-align: center
     code-line-numbers: false
     preview-links: auto
+    # Incrusta reveal.js, los estilos y las imagenes dentro del propio .html.
+    # Sin esto el archivo pesa 41 KB y depende de 30 ficheros externos: al
+    # subirlo suelto a la plataforma se veria sin estilos y sin graficos.
+    embed-resources: true
 execute:
   echo: false
   warning: false
