@@ -158,7 +158,7 @@ un Ubuntu limpio y sin depender de lo que haya instalado en la máquina de nadie
 |:---|:---|
 | `src/eda_bank.py` | **Ejecutado.** El workflow falla si no genera exactamente 13 figuras y 14 tablas. Todas fueron además inspeccionadas visualmente. |
 | `src/eda_bank.R` | **Ejecutado.** Corre de principio a fin en Ubuntu con R release. |
-| `UTEC-Report1.qmd` | **Renderizado a PDF.** 27 páginas, con índice, listado de figuras y de tablas, y citas resueltas por biblatex. |
+| `UTEC-Report1.qmd` | **Renderizado a PDF.** 28 páginas, con índice, listado de 13 figuras y 11 tablas, y las 5 citas resueltas por biblatex. |
 | `UTEC-Presentation.qmd` | **Renderizado a HTML.** 25 secciones reveal.js, con todos los valores dinámicos de R interpolados. |
 | Cifras del informe | **Verificadas.** Provienen de las tablas que genera el pipeline en la misma ejecución que renderiza el documento. |
 
