@@ -1,7 +1,7 @@
 ---
 title: "Bank Marketing"
 subtitle: "Entrega P1 — Exploración y Preprocesamiento"
-author: "Grupo N.º — (completar integrantes)"
+author: "Daniel Guillermo Sandoval Toro — Grupo 9"
 institute: "Introducción a Ciencia de Datos e Inteligencia Artificial"
 date: today
 date-format: "D [de] MMMM [de] YYYY"

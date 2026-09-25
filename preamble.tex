@@ -58,6 +58,16 @@
 \DeclareUnicodeCharacter{2248}{$\approx$}          % aproximadamente
 \DeclareUnicodeCharacter{2260}{$\neq$}             % distinto de
 
+% --- Datos de contacto de la portada -----------------------------------------
+% La plantilla imprime siempre telefono y correo, y si no se define `phone` en
+% el YAML no lo omite: cae en un valor por defecto y estampa el telefono de
+% Monash University, (03) 9905 2478. Se redefine el bloque para dejar solo el
+% correo. Va aqui porque `include-in-header` se inyecta despues de la
+% definicion original (linea 394) y antes de que la portada se componga.
+\makeatletter
+\def\contactdetails{\faicon{envelope} & \@email}
+\makeatother
+
 % --- Resaltado de cifras clave -----------------------------------------------
 % \cifra{11.27\%} destaca un valor numérico en el cuerpo del texto sin recurrir
 % a negrita, que ya se usa para los términos conceptuales.

@@ -2,11 +2,10 @@
 title: "PROYECTO FINAL — ENTREGA P1"
 subtitle: "Exploración y Preprocesamiento del dataset *Bank Marketing*"
 author:
-- familyname: "(completar)"
-  othernames: "(completar)"
-  qualifications: Estudiante
-email: correo@utec.edu.pe
-phone: (+51) 000000000
+- familyname: Sandoval Toro
+  othernames: Daniel Guillermo
+  qualifications: Estudiante — Grupo 9
+email: daniel.sandoval.t@utec.edu.pe
 department: CIENCIA DE DATOS E \newline INTELIGENCIA ARTIFICIAL
 organization: Introducción a Ciencia de Datos e Inteligencia Artificial
 number-sections: true
