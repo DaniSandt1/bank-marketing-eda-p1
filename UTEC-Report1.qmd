@@ -337,14 +337,39 @@ El dataset resultante tiene **`r v("filas_final", 0)` filas** y
 ### Medidas de tendencia central y de dispersión
 
 ```{r}
-#| label: tbl-descriptivos
-#| tbl-cap: "Medidas de tendencia central, dispersión y forma de las variables numéricas."
-leer_tabla("tbl_descriptivos.csv") |>
-  select(Variable, Media, Mediana, Moda, `Desv. Est.` = Desv_Est,
-         Mín = Min, Q1, Q3, Máx = Max, RIC, `CV %` = CV_pct,
+#| include: false
+# Las 13 columnas de descriptivos no caben en el ancho de una A4 vertical: la
+# columna de curtosis se salia del margen. Se reparten en tres tablas, que
+# ademas siguen la division que pide el enunciado (tendencia central por un
+# lado, dispersion por otro) en vez de amontonarlo todo.
+desc <- leer_tabla("tbl_descriptivos.csv") |>
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+```
+
+```{r}
+#| label: tbl-centrales
+#| tbl-cap: "Medidas de tendencia central de las variables numéricas."
+desc |>
+  select(Variable, Media, Mediana, Moda) |>
+  tabla_bonita("Medidas de tendencia central.", fs = 8)
+```
+
+```{r}
+#| label: tbl-dispersion
+#| tbl-cap: "Medidas de dispersión de las variables numéricas."
+desc |>
+  select(Variable, `Desv. Est.` = Desv_Est, Varianza, Rango, RIC,
+         `CV %` = CV_pct) |>
+  tabla_bonita("Medidas de dispersión.", fs = 8)
+```
+
+```{r}
+#| label: tbl-cuartiles
+#| tbl-cap: "Cuartiles y medidas de forma de las variables numéricas."
+desc |>
+  select(Variable, Mín = Min, Q1, Q3, Máx = Max,
          Asimetría = Asimetria, Curtosis) |>
-  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
-  tabla_bonita("Descriptivos de las variables numéricas.", fs = 7)
+  tabla_bonita("Cuartiles y medidas de forma.", fs = 8)
 ```
 
 Las medidas solo tienen lectura conjunta: una media sin su dispersión no informa
