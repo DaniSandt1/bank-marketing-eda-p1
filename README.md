@@ -56,6 +56,10 @@ pipeline se vuelve a ejecutar con otro criterio, el texto se actualiza solo.
 
 ### Requisitos
 
+> **Nada de esto hace falta para ver los documentos.** Están publicados en
+> <https://danisandt1.github.io/bank-marketing-eda-p1/> y se regeneran solos en
+> cada `push`. Lo de abajo es únicamente para trabajar en local.
+
 | Herramienta | Uso | Necesaria para |
 |:---|:---|:---|
 | Python ≥ 3.10 | Pipeline principal | Generar figuras y tablas |
@@ -146,15 +150,45 @@ es de +0.030: Pearson no puede ver este patrón.
 
 ## 6. Estado de verificación
 
-Conviene ser explícito sobre qué está comprobado y qué no.
+Todo el proyecto se verifica automáticamente en cada `push` mediante GitHub
+Actions ([`.github/workflows/render.yml`](.github/workflows/render.yml)), sobre
+un Ubuntu limpio y sin depender de lo que haya instalado en la máquina de nadie.
 
 | Componente | Estado |
 |:---|:---|
-| `src/eda_bank.py` | **Ejecutado y verificado.** Genera las 13 figuras y 14 tablas. Todas las figuras fueron inspeccionadas visualmente. |
-| Cifras del informe | **Verificadas.** Provienen de las tablas generadas por el pipeline ejecutado. |
-| `src/eda_bank.R` | **No ejecutado.** R no estaba instalado en el equipo donde se redactó. Escrito de forma idiomática, pero requiere una pasada de comprobación. |
-| `UTEC-Report1.qmd` | **No renderizado.** Quarto y LaTeX no estaban instalados. Requiere `quarto render` para confirmar. |
-| `UTEC-Presentation.qmd` | **No renderizado.** Mismo motivo. |
+| `src/eda_bank.py` | **Ejecutado.** El workflow falla si no genera exactamente 13 figuras y 14 tablas. Todas fueron además inspeccionadas visualmente. |
+| `src/eda_bank.R` | **Ejecutado.** Corre de principio a fin en Ubuntu con R release. |
+| `UTEC-Report1.qmd` | **Renderizado a PDF.** 27 páginas, con índice, listado de figuras y de tablas, y citas resueltas por biblatex. |
+| `UTEC-Presentation.qmd` | **Renderizado a HTML.** 25 secciones reveal.js, con todos los valores dinámicos de R interpolados. |
+| Cifras del informe | **Verificadas.** Provienen de las tablas que genera el pipeline en la misma ejecución que renderiza el documento. |
+
+### Resultados publicados
+
+Cada ejecución correcta publica el informe y la presentación en:
+
+**<https://danisandt1.github.io/bank-marketing-eda-p1/>**
+
+Los artefactos (PDF, HTML, `.tex` intermedio, figuras y tablas) quedan además
+descargables desde la pestaña *Actions* del repositorio.
+
+### Problemas encontrados y corregidos durante la verificación
+
+Vale la pena dejarlos registrados, porque son errores que no se manifiestan
+hasta que se compila de verdad:
+
+1. **Signo menos Unicode.** El texto usaba U+2212 en lugar del guion ASCII.
+   pdfLaTeX con `inputenc` solo conoce Latin-1 y abortaba la compilación. Se
+   sustituyeron los 17 casos y se añadieron declaraciones
+   `\DeclareUnicodeCharacter` en `preamble.tex` como red de seguridad.
+2. **`No counter 'none' defined`.** La única tabla markdown sin caption se
+   convertía en `longtable` y, con `lot: true`, Quarto intentaba añadirla a la
+   lista de tablas sin contador. Se le dio caption e identificador.
+3. **Tabla de covarianzas desbordada.** `scale_down` de kableExtra **no
+   funciona sobre `longtable`** y se descarta en silencio; se confirmó
+   inspeccionando el `.tex` generado, donde no aparecía ningún `\resizebox`. Lo
+   que forzaba el ancho eran los encabezados, así que se abrevian con
+   `abbreviate()` de R base, que garantiza unicidad —truncarlos a mano
+   colapsaba `n_contactos_campana` y `n_contactos_previos` en la misma cadena.
 
 ---
 

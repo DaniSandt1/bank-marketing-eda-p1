@@ -63,9 +63,12 @@ cifras <- leer_tabla("tbl_cifras_clave.csv") |>
 # Valor puntual por nombre, formateado para intercalar en el texto.
 v <- function(k, dec = 2) format(round(cifras[[k]], dec), big.mark = ",", trim = TRUE)
 
-# `ajustar = TRUE` anade scale_down, que encoge la tabla hasta el ancho del
-# texto. Necesario en la matriz de covarianzas: 10 columnas numericas de varias
-# cifras se salen del margen y LaTeX no las parte solo.
+# `ajustar = TRUE` pide scale_down. Aviso por si se reutiliza esta funcion:
+# Quarto emite estas tablas como `longtable`, y kableExtra DESCARTA scale_down
+# en longtable sin avisar (no se puede meter un longtable en un \resizebox).
+# Se comprobo inspeccionando el .tex generado: no aparece ningun \resizebox.
+# Para que una tabla ancha quepa hay que reducir su contenido -como se hace en
+# la matriz de covarianzas, abreviando encabezados- o pasarla a apaisado.
 tabla_bonita <- function(d, cap, fs = 9, ajustar = FALSE) {
   opciones <- c("HOLD_position", "striped")
   if (ajustar) opciones <- c(opciones, "scale_down")
